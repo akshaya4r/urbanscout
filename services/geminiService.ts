@@ -32,9 +32,15 @@ export const analyzeLocation = async (locationQuery: string): Promise<StreetRepo
           "residential": number (percentage 0-100),
           "commercial": number (percentage 0-100),
           "other": number (percentage 0-100)
-        },
+        }, // Ensure these 3 numbers sum to exactly 100
         "summary": "A 2-sentence summary of the likely infrastructure.",
-        "infrastructureScore": number (0-100, based on walkability, road condition, and planning)
+        "infrastructureScore": number (0-100, based on walkability, road condition, and planning),
+        "infrastructureScoreReasoning": "One sentence explaining the main factor driving this score (e.g. 'High score due to excellent pedestrian separation and greenery' or 'Low score reflects poor maintenance and lack of sidewalks').",
+        "airQuality": {
+          "aqi": number (estimate 0-500 based on typical recent data for this city/area),
+          "category": "Good" | "Moderate" | "Unhealthy" | "Hazardous",
+          "dominantPollutant": "e.g. 'PM2.5', 'Ozone', 'NO2' or 'N/A'"
+        }
       }
     `;
 
@@ -63,4 +69,33 @@ export const analyzeLocation = async (locationQuery: string): Promise<StreetRepo
     let mapUrl = undefined;
     const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
     if (groundingChunks) {
-      // Find a chunk
+      // Find a chunk that has a web URI or map URI
+      const mapChunk = groundingChunks.find(c => 
+        c.web?.uri?.includes('google.com/maps') || 
+        (c as any).maps?.uri
+      );
+      
+      if (mapChunk) {
+        mapUrl = mapChunk.web?.uri || (mapChunk as any).maps?.uri;
+      }
+    }
+
+    // Clean markdown code blocks if present
+    const cleanJson = text.replace(/```json\n?|\n?```/g, "").trim();
+    
+    try {
+      const data = JSON.parse(cleanJson);
+      return {
+        ...data,
+        mapUrl // Inject the map URL found in grounding
+      };
+    } catch (parseError) {
+      console.error("Failed to parse JSON:", cleanJson);
+      throw new Error("Received invalid data from AI. Please try a different location name.");
+    }
+
+  } catch (error: any) {
+    console.error("Analysis error:", error);
+    throw error;
+  }
+};

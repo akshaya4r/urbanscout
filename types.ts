@@ -14,6 +14,12 @@ export interface StreetReport {
   };
   summary: string;
   infrastructureScore: number; // 0-100
+  infrastructureScoreReasoning: string;
+  airQuality: {
+    aqi: number;
+    category: 'Good' | 'Moderate' | 'Unhealthy' | 'Hazardous';
+    dominantPollutant: string;
+  };
   mapUrl?: string;
 }
 
