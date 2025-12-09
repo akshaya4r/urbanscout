@@ -30,6 +30,11 @@ export interface StreetReport {
     quality: 'Excellent' | 'Good' | 'Fair' | 'Poor' | 'N/A';
     description: string;
   };
+  lightingAnalysis: {
+    coverage: 'Excellent' | 'Good' | 'Fair' | 'Poor' | 'None';
+    type: string; // e.g. "LED", "Sodium", "Mixed"
+    qualityDescription: string;
+  };
   summary: string;
   infrastructureScore: number; // 0-100
   infrastructureScoreReasoning: string;

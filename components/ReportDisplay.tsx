@@ -25,7 +25,8 @@ import {
   Palmtree,
   Sun,
   MapPin,
-  Building
+  Building,
+  Lightbulb
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
@@ -407,7 +408,7 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, onReset }) => {
               <Activity className="w-5 h-5 text-indigo-600" /> Condition & Environment
             </h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Health Score */}
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
@@ -473,10 +474,10 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, onReset }) => {
                  </div>
 
                  <p className="text-sm text-slate-500 leading-snug">
-                   {report.vegetationLevel === 'Abundant' ? 'Dense vegetation providing extensive shade and aesthetic value.' : 
-                    report.vegetationLevel === 'Moderate' ? 'Balanced greenery with street trees or small gardens.' :
-                    report.vegetationLevel === 'Sparse' ? 'Limited planting, mostly concrete with few trees.' :
-                    'Urban hardscape with little to no visible nature.'}
+                   {report.vegetationLevel === 'Abundant' ? 'Dense vegetation providing extensive shade.' : 
+                    report.vegetationLevel === 'Moderate' ? 'Balanced greenery with street trees.' :
+                    report.vegetationLevel === 'Sparse' ? 'Limited planting, mostly hardscape.' :
+                    'Urban hardscape with no visible nature.'}
                  </p>
               </div>
 
@@ -494,6 +495,30 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, onReset }) => {
                    </div>
                  </div>
               </div>
+
+              {/* Lighting Analysis (New) */}
+              <div className={`p-4 rounded-xl border ${
+                report.lightingAnalysis?.coverage === 'Excellent' || report.lightingAnalysis?.coverage === 'Good' ? 'bg-amber-50 text-amber-800 border-amber-200' :
+                report.lightingAnalysis?.coverage === 'Fair' ? 'bg-slate-50 text-slate-700 border-slate-200' :
+                'bg-slate-100 text-slate-500 border-slate-200'
+              } flex flex-col justify-between`}>
+                 <div className="flex justify-between items-start mb-2">
+                    <span className="font-medium opacity-90">Lighting</span>
+                    <Lightbulb className="w-5 h-5 opacity-80" />
+                 </div>
+                 <div>
+                   <div className="text-xl font-bold mb-1">
+                     {report.lightingAnalysis?.coverage || 'N/A'}
+                   </div>
+                   <div className="text-xs font-semibold uppercase tracking-wider opacity-70 mb-2">
+                     {report.lightingAnalysis?.type || 'Unknown'}
+                   </div>
+                   <div className="text-xs opacity-75 leading-tight">
+                      {report.lightingAnalysis?.qualityDescription || 'No data'}
+                   </div>
+                 </div>
+              </div>
+
             </div>
           </section>
 

@@ -54,6 +54,11 @@ export const analyzeLocation = async (locationQuery: string): Promise<StreetRepo
            "quality": "Excellent" | "Good" | "Fair" | "Poor" | "N/A",
            "description": "Brief description of the open spaces availability and condition."
         },
+        "lightingAnalysis": {
+           "coverage": "Excellent" | "Good" | "Fair" | "Poor" | "None",
+           "type": "string (e.g. Modern LED, Sodium Vapor, Mixed, Sparse)",
+           "qualityDescription": "Brief description of the lighting condition at night."
+        },
         "summary": "A 2-sentence summary of the likely infrastructure.",
         "infrastructureScore": number (0-100, based on walkability, road condition, and planning),
         "infrastructureScoreReasoning": "One sentence explaining the main factor driving this score.",
