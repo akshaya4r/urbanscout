@@ -91,7 +91,7 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, onReset }) => {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       
-      {/* Header Banner - Map Style */}
+      {/* 1. Header Banner - Map Style */}
       <div className="relative bg-slate-900 rounded-3xl overflow-hidden mb-8 shadow-2xl p-6 md:p-10">
         <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3"></div>
@@ -145,7 +145,7 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, onReset }) => {
         </div>
       </div>
 
-      {/* Score Reasoning Bar */}
+      {/* 2. Score Reasoning Bar */}
       <div className="mb-8 bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-start gap-3">
          <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600 flex-shrink-0">
            <ShieldCheck className="w-5 h-5" />
@@ -156,81 +156,245 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, onReset }) => {
          </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-        
-        {/* Main Stats Column */}
-        <div className="lg:col-span-2 space-y-8">
-          
-          {/* Key Infrastructure Metrics - Expanded to include Lighting & Vegetation */}
-          <section>
-            <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-              <Ruler className="w-5 h-5 text-indigo-600" /> Infrastructure Details
+      {/* 3. Context & Vitals Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+         
+         {/* Zoning Mix */}
+         <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+            <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2 uppercase tracking-wider">
+              <Building2 className="w-4 h-4 text-indigo-600" /> Zoning Mix
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <MetricCard 
-                label={report.locationType === 'Street' ? "Est. Width" : "Avg. Width"}
-                value={report.estimatedWidth} 
-                icon={Ruler} 
-              />
-              <MetricCard 
-                label="Cycling Lane" 
-                value={report.hasCyclingLane ? "Present" : "None"} 
-                icon={Bike} 
-                status={report.hasCyclingLane ? 'success' : 'neutral'}
-              />
-              <MetricCard 
-                label="Drainage System" 
-                value={report.hasOpenDrains ? "Open / Exposed" : "Underground"} 
-                icon={Waves} 
-                status={report.hasOpenDrains ? 'danger' : 'success'}
-              />
-               <MetricCard 
-                label="Pavement" 
-                value={
-                  report.hasPavement 
-                    ? (report.pavementAnalysis?.isWheelchairFriendly ? "Available" : "Limited Access") 
-                    : "Missing"
-                } 
-                icon={PavementIcon} 
-                status={
-                  report.hasPavement 
-                    ? (report.pavementAnalysis?.isWheelchairFriendly ? 'success' : 'warning') 
-                    : 'danger'
-                }
-              />
-              <MetricCard
-                label="Greenery"
-                value={report.vegetationLevel}
-                icon={TreeDeciduous}
-                status={
-                  report.vegetationLevel === 'Abundant' ? 'success' :
-                  report.vegetationLevel === 'Moderate' ? 'success' :
-                  report.vegetationLevel === 'Sparse' ? 'warning' : 'neutral'
-                }
-              />
-              <MetricCard
-                 label="Street Lighting"
-                 value={report.lightingAnalysis?.coverage || 'N/A'}
-                 subtext={report.lightingAnalysis?.qualityDescription}
-                 icon={Lightbulb}
-                 status={
-                   report.lightingAnalysis?.coverage === 'Excellent' ? 'success' :
-                   report.lightingAnalysis?.coverage === 'Good' ? 'success' :
-                   report.lightingAnalysis?.coverage === 'Fair' ? 'warning' : 'neutral'
-                 }
-              />
+            <div className="flex items-center gap-4 flex-1">
+               <div className="h-24 w-24 relative flex-shrink-0">
+                 <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={mixData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={25}
+                      outerRadius={45}
+                      paddingAngle={4}
+                      dataKey="value"
+                      stroke="none"
+                    >
+                      {mixData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip cursor={false} contentStyle={{ borderRadius: '8px', border: 'none' }} />
+                  </PieChart>
+                </ResponsiveContainer>
+               </div>
+               <div className="flex-1 space-y-2">
+                {mixData.length > 0 ? mixData.map((item) => (
+                  <div key={item.name} className="flex flex-col">
+                    <div className="flex justify-between items-center text-xs">
+                       <span className="flex items-center gap-1.5 font-medium text-slate-600">
+                         <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.color }}></span>
+                         {item.name}
+                       </span>
+                       <span className="font-bold text-slate-800">{item.value}%</span>
+                    </div>
+                    <div className="h-1 w-full bg-slate-100 rounded-full overflow-hidden mt-0.5">
+                      <div className="h-full rounded-full" style={{ width: `${item.value}%`, backgroundColor: item.color }} />
+                    </div>
+                  </div>
+                )) : <span className="text-xs text-slate-400 italic">No zoning data</span>}
+               </div>
             </div>
-          </section>
+         </div>
 
-          {/* Walkability & Accessibility Section */}
-          <section className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+         {/* Air Quality */}
+         <div className={`p-5 rounded-2xl border ${getAqiColor(report.airQuality.aqi)} flex flex-col justify-between`}>
+             <div className="flex justify-between items-start mb-2">
+                <span className="text-sm font-bold uppercase tracking-wider opacity-90">Air Quality</span>
+                <Wind className="w-5 h-5 opacity-80" />
+             </div>
+             <div>
+               <div className="text-4xl font-bold mb-1">{report.airQuality.aqi}</div>
+               <div className="text-sm font-semibold uppercase tracking-wider opacity-80 mb-1">{report.airQuality.category}</div>
+               <div className="text-xs opacity-70">
+                  Pollutant: {report.airQuality.dominantPollutant}
+               </div>
+             </div>
+         </div>
+
+         {/* Street Health */}
+         <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+             <div className="flex justify-between items-start mb-4">
+               <span className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                 <Activity className="w-4 h-4 text-indigo-600" /> Infra Health
+               </span>
+               <span className={`px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 ${
+                     report.streetHealth === 'Excellent' ? 'text-emerald-600 bg-emerald-50' : 
+                     report.streetHealth === 'Good' ? 'text-emerald-600 bg-emerald-50' :
+                     report.streetHealth === 'Fair' ? 'text-amber-600 bg-amber-50' : 
+                     'text-rose-600 bg-rose-50'
+                   }`}>{report.streetHealth}</span>
+             </div>
+             <div className="space-y-3">
+               <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full rounded-full ${getHealthStatus(report.streetHealth) === 'success' ? 'bg-emerald-500' : getHealthStatus(report.streetHealth) === 'warning' ? 'bg-amber-500' : 'bg-rose-500'}`} 
+                    style={{ width: report.streetHealth === 'Excellent' ? '100%' : report.streetHealth === 'Good' ? '75%' : report.streetHealth === 'Fair' ? '50%' : '25%' }}
+                  />
+               </div>
+               <p className="text-xs text-slate-500 italic leading-snug">"{report.healthReasoning}"</p>
+             </div>
+         </div>
+      </div>
+
+      {/* 4. Connectivity Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Public Transport */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col md:flex-row gap-6">
+              <div className="flex-1">
+                 <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                      <Bus className="w-4 h-4 text-indigo-600" /> Public Transport
+                    </h3>
+                    <div className="text-2xl font-bold text-slate-900">{report.publicTransport?.rating || "N/A"}</div>
+                 </div>
+                 <p className="text-sm text-slate-600 leading-relaxed mb-4">
+                    {report.publicTransport?.description || "Data unavailable"}
+                 </p>
+                 {report.publicTransport?.types && report.publicTransport.types.length > 0 && (
+                   <div className="flex flex-wrap gap-2">
+                      {report.publicTransport.types.map((type, i) => (
+                        <span key={i} className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] uppercase font-bold text-slate-600 flex items-center gap-1.5">
+                          {type.toLowerCase().includes('train') || type.toLowerCase().includes('metro') ? <TrainFront className="w-3 h-3" /> : <Bus className="w-3 h-3" />}
+                          {type}
+                        </span>
+                      ))}
+                   </div>
+                 )}
+              </div>
+              {/* Nearby Stops mini-list if available could go here, but prompt didn't strictly require it separate */}
+          </div>
+
+          {/* Traffic Dynamics */}
+          {report.trafficAnalysis && (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+               <div className="flex justify-between items-start mb-4">
+                  <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                    <Car className="w-4 h-4 text-indigo-600" /> Traffic Dynamics
+                  </h3>
+                  <span className={`px-2.5 py-1 text-xs font-bold uppercase rounded-full border ${getCongestionColor(report.trafficAnalysis.congestionLevel)}`}>
+                      {report.trafficAnalysis.congestionLevel} Congestion
+                  </span>
+               </div>
+               
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="text-sm text-slate-600 leading-relaxed">
+                     {report.trafficAnalysis.description}
+                     {report.trafficAnalysis.peakHours && (
+                        <div className="mt-3 flex items-center gap-2 text-xs text-slate-400 font-medium">
+                           <Clock className="w-3 h-3" /> Peak: {report.trafficAnalysis.peakHours}
+                        </div>
+                     )}
+                  </div>
+                  <div className="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                      {[
+                        { label: 'Cars', icon: Car, level: report.trafficAnalysis.modalSplit.car },
+                        { label: 'Transit', icon: Bus, level: report.trafficAnalysis.modalSplit.bus },
+                        { label: 'Pedestrians', icon: Users, level: report.trafficAnalysis.modalSplit.pedestrian }
+                      ].map((mode) => (
+                        <div key={mode.label} className="flex items-center justify-between text-xs">
+                           <div className="flex items-center gap-2 text-slate-600">
+                              <mode.icon className="w-3.5 h-3.5 opacity-70" />
+                              <span>{mode.label}</span>
+                           </div>
+                           <div className="flex items-center gap-1.5">
+                              <span className={`h-1.5 w-1.5 rounded-full ${
+                                mode.level === 'Heavy' ? 'bg-rose-500' :
+                                mode.level === 'Moderate' ? 'bg-amber-500' : 'bg-emerald-500'
+                              }`}></span>
+                              <span className="font-medium text-slate-700">{mode.level}</span>
+                           </div>
+                        </div>
+                      ))}
+                  </div>
+               </div>
+            </div>
+          )}
+      </div>
+
+      {/* 5. Physical Infrastructure & Public Realm Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        
+        {/* LEFT COLUMN: Physical Build */}
+        <div className="space-y-8">
+           {/* Metric Cards Grid */}
+           <section>
+              <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                <Ruler className="w-5 h-5 text-indigo-600" /> Street Profile
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <MetricCard 
+                  label={report.locationType === 'Street' ? "Est. Width" : "Avg. Width"}
+                  value={report.estimatedWidth} 
+                  icon={Ruler} 
+                />
+                <MetricCard 
+                  label="Cycling Lane" 
+                  value={report.hasCyclingLane ? "Present" : "None"} 
+                  icon={Bike} 
+                  status={report.hasCyclingLane ? 'success' : 'neutral'}
+                />
+                <MetricCard 
+                  label="Drainage" 
+                  value={report.hasOpenDrains ? "Exposed" : "Underground"} 
+                  icon={Waves} 
+                  status={report.hasOpenDrains ? 'danger' : 'success'}
+                />
+                 <MetricCard 
+                  label="Pavement" 
+                  value={
+                    report.hasPavement 
+                      ? (report.pavementAnalysis?.isWheelchairFriendly ? "Available" : "Limited Access") 
+                      : "Missing"
+                  } 
+                  icon={PavementIcon} 
+                  status={
+                    report.hasPavement 
+                      ? (report.pavementAnalysis?.isWheelchairFriendly ? 'success' : 'warning') 
+                      : 'danger'
+                  }
+                />
+                <MetricCard
+                  label="Greenery"
+                  value={report.vegetationLevel}
+                  icon={TreeDeciduous}
+                  status={
+                    report.vegetationLevel === 'Abundant' ? 'success' :
+                    report.vegetationLevel === 'Moderate' ? 'success' :
+                    report.vegetationLevel === 'Sparse' ? 'warning' : 'neutral'
+                  }
+                />
+                <MetricCard
+                   label="Lighting"
+                   value={report.lightingAnalysis?.coverage || 'N/A'}
+                   subtext={report.lightingAnalysis?.qualityDescription}
+                   icon={Lightbulb}
+                   status={
+                     report.lightingAnalysis?.coverage === 'Excellent' ? 'success' :
+                     report.lightingAnalysis?.coverage === 'Good' ? 'success' :
+                     report.lightingAnalysis?.coverage === 'Fair' ? 'warning' : 'neutral'
+                   }
+                />
+              </div>
+           </section>
+
+           {/* Walkability Card */}
+           <section className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
              <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
               <Accessibility className="w-5 h-5 text-indigo-600" /> Walkability & Accessibility
             </h3>
             
             {report.pavementAnalysis ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                 {/* Left: Detailed Description */}
+              <div className="space-y-6">
+                 {/* Detailed Description */}
                  <div>
                     <p className="text-slate-600 text-sm leading-relaxed mb-4">
                       {report.pavementAnalysis.safetyDescription}
@@ -254,7 +418,7 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, onReset }) => {
                     </div>
                  </div>
 
-                 {/* Right: Key Features Grid */}
+                 {/* Key Features Grid */}
                  <div className="grid grid-cols-2 gap-3">
                     {/* Raised Status */}
                     <div className={`p-3 rounded-lg border ${report.pavementAnalysis.isRaised ? 'bg-indigo-50 border-indigo-100' : 'bg-slate-50 border-slate-100'}`}>
@@ -316,14 +480,17 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, onReset }) => {
             ) : (
               <div className="text-slate-400 text-sm italic">No detailed pavement analysis available.</div>
             )}
-          </section>
+           </section>
+        </div>
 
-          {/* Public Realm & Open Spaces Section */}
-          {report.openSpaceAnalysis && (
-            <section className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+        {/* RIGHT COLUMN: Public Realm & Disclaimer */}
+        <div className="space-y-8">
+           {/* Public Realm & Open Spaces Section */}
+           {report.openSpaceAnalysis && (
+            <section className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 h-full flex flex-col">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                  <Palmtree className="w-5 h-5 text-indigo-600" /> Public Realm & Open Spaces
+                  <Palmtree className="w-5 h-5 text-indigo-600" /> Public Realm & Spaces
                 </h3>
                 {report.openSpaceAnalysis.exists && (
                   <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${
@@ -337,9 +504,21 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, onReset }) => {
               </div>
 
               {/* Cleanliness / Debris Block */}
-              <div className="mb-6 p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex flex-col md:flex-row gap-4 md:items-center justify-between">
+              <div className="mb-6 p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Cleanliness</h4>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                      report.cleanlinessAnalysis?.rating === 'Excellent' ? 'bg-emerald-100 text-emerald-700' :
+                      report.cleanlinessAnalysis?.rating === 'Good' ? 'bg-emerald-50 text-emerald-600' :
+                      report.cleanlinessAnalysis?.rating === 'Fair' ? 'bg-amber-50 text-amber-600' :
+                      'bg-rose-50 text-rose-600'
+                    }`}>
+                      {report.cleanlinessAnalysis?.rating || "N/A"}
+                  </span>
+                </div>
+                
                 <div className="flex items-start gap-3">
-                   <div className={`p-2 rounded-lg ${
+                   <div className={`p-2 rounded-lg shrink-0 ${
                      report.cleanlinessAnalysis?.debrisLevel === 'None' || report.cleanlinessAnalysis?.debrisLevel === 'Minor' 
                      ? 'bg-emerald-100 text-emerald-600' 
                      : 'bg-amber-100 text-amber-600'
@@ -349,30 +528,14 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, onReset }) => {
                         : <Trash2 className="w-5 h-5" />
                       }
                    </div>
-                   <div>
-                      <h4 className="text-sm font-bold text-slate-700 uppercase">Cleanliness & Debris</h4>
-                      <p className="text-sm text-slate-600">{report.cleanlinessAnalysis?.details || "Analysis not available."}</p>
-                   </div>
-                </div>
-                <div className="flex gap-2">
-                    <span className="text-xs font-medium text-slate-400 uppercase tracking-wider self-center">Rating:</span>
-                    <span className={`px-3 py-1 rounded-full text-sm font-bold ${
-                      report.cleanlinessAnalysis?.rating === 'Excellent' ? 'bg-emerald-100 text-emerald-700' :
-                      report.cleanlinessAnalysis?.rating === 'Good' ? 'bg-emerald-50 text-emerald-600' :
-                      report.cleanlinessAnalysis?.rating === 'Fair' ? 'bg-amber-50 text-amber-600' :
-                      'bg-rose-50 text-rose-600'
-                    }`}>
-                      {report.cleanlinessAnalysis?.rating || "N/A"}
-                    </span>
+                   <p className="text-sm text-slate-600">{report.cleanlinessAnalysis?.details || "Analysis not available."}</p>
                 </div>
               </div>
 
               {report.openSpaceAnalysis.exists ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Left Column: Details */}
-                  <div className="space-y-6">
-                     {/* Type Icons */}
-                     <div className="flex flex-wrap gap-3">
+                <div className="space-y-6 flex-1">
+                   {/* Type Icons */}
+                   <div className="flex flex-wrap gap-3">
                         {report.openSpaceAnalysis.spaces.slice(0, 3).map((space, idx) => (
                           <div key={idx} className="flex flex-col items-center justify-center p-3 w-20 h-20 bg-indigo-50/50 border border-indigo-100 rounded-lg">
                              {space.type.toLowerCase().includes('water') ? <Waves className="w-6 h-6 text-indigo-500 mb-1" /> :
@@ -383,60 +546,59 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, onReset }) => {
                              <span className="text-[9px] font-bold uppercase text-indigo-800 text-center leading-tight truncate w-full">{space.type.split(' ')[0]}</span>
                           </div>
                         ))}
-                     </div>
+                   </div>
 
-                     <p className="text-slate-600 text-sm leading-relaxed border-l-2 border-indigo-100 pl-4">
+                   <p className="text-slate-600 text-sm leading-relaxed border-l-2 border-indigo-100 pl-4">
                        {report.openSpaceAnalysis.description}
-                     </p>
+                   </p>
 
-                     {/* Amenities */}
-                     {report.openSpaceAnalysis.amenities.length > 0 && report.openSpaceAnalysis.amenities[0] !== 'None' && (
-                       <div>
-                         <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">Amenities</span>
-                         <div className="flex flex-wrap gap-2">
-                           {report.openSpaceAnalysis.amenities.map((amenity, idx) => (
-                             <div key={idx} className="flex items-center gap-2 text-xs text-slate-600 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100">
-                               {amenity.toLowerCase().includes('bench') ? <Armchair className="w-3 h-3 text-slate-400" /> :
-                                amenity.toLowerCase().includes('water') ? <Droplets className="w-3 h-3 text-slate-400" /> :
-                                <CheckCircle2 className="w-3 h-3 text-slate-400" />
-                               }
-                               <span className="truncate">{amenity}</span>
-                             </div>
-                           ))}
-                         </div>
-                       </div>
-                     )}
-                  </div>
-
-                  {/* Right Column: List of Spaces with Distance */}
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">Nearby Walkable Locations</span>
+                   {/* Nearby Locations List */}
+                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">Walkable Spaces</span>
                     {report.openSpaceAnalysis.spaces && report.openSpaceAnalysis.spaces.length > 0 ? (
                       <div className="space-y-3">
                         {report.openSpaceAnalysis.spaces.map((space, idx) => (
-                           <div key={idx} className="flex items-center justify-between bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                           <div key={idx} className="flex items-center justify-between bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm">
                               <div className="flex items-center gap-3">
-                                 <div className="bg-indigo-50 p-2 rounded-full text-indigo-600">
-                                    <MapPin className="w-4 h-4" />
+                                 <div className="bg-indigo-50 p-1.5 rounded-full text-indigo-600">
+                                    <MapPin className="w-3.5 h-3.5" />
                                  </div>
-                                 <div>
-                                    <div className="text-sm font-semibold text-slate-800">{space.name}</div>
-                                    <div className="text-xs text-slate-500">{space.type}</div>
+                                 <div className="min-w-0">
+                                    <div className="text-sm font-semibold text-slate-800 truncate max-w-[120px]">{space.name}</div>
+                                    <div className="text-[10px] text-slate-500">{space.type}</div>
                                  </div>
                               </div>
-                              <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-100 rounded text-xs font-medium text-slate-600">
+                              <div className="flex items-center gap-1 px-2 py-0.5 bg-slate-100 rounded text-[10px] font-medium text-slate-600 shrink-0">
                                  <Navigation className="w-3 h-3" /> {space.distance}
                               </div>
                            </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center text-slate-400 py-6">No specific names identified.</div>
+                      <div className="text-center text-slate-400 py-4 text-xs">No specific names identified.</div>
                     )}
                   </div>
+                   
+                   {/* Amenities */}
+                   {report.openSpaceAnalysis.amenities.length > 0 && report.openSpaceAnalysis.amenities[0] !== 'None' && (
+                     <div>
+                       <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">Amenities</span>
+                       <div className="flex flex-wrap gap-2">
+                         {report.openSpaceAnalysis.amenities.map((amenity, idx) => (
+                           <div key={idx} className="flex items-center gap-2 text-xs text-slate-600 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100">
+                             {amenity.toLowerCase().includes('bench') ? <Armchair className="w-3 h-3 text-slate-400" /> :
+                              amenity.toLowerCase().includes('water') ? <Droplets className="w-3 h-3 text-slate-400" /> :
+                              <CheckCircle2 className="w-3 h-3 text-slate-400" />
+                             }
+                             <span className="truncate">{amenity}</span>
+                           </div>
+                         ))}
+                       </div>
+                     </div>
+                   )}
                 </div>
               ) : (
-                <div className="flex items-center justify-center py-8 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                <div className="flex flex-col items-center justify-center flex-1 py-8 bg-slate-50 rounded-xl border border-dashed border-slate-200">
                   <div className="text-center text-slate-400">
                      <Palmtree className="w-8 h-8 mx-auto mb-2 opacity-50" />
                      <p className="font-medium">No significant open spaces identified nearby.</p>
@@ -444,215 +606,10 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, onReset }) => {
                 </div>
               )}
             </section>
-          )}
+           )}
 
-          {/* Liveability & Connectivity */}
-          <section className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-            <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-              <Activity className="w-5 h-5 text-indigo-600" /> Liveability & Connectivity
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              
-              {/* Public Transport */}
-              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col h-full justify-between">
-                 <div className="flex justify-between items-start mb-2">
-                    <span className="font-medium opacity-90 text-slate-700">Public Transport</span>
-                    <Bus className="w-5 h-5 text-slate-500" />
-                 </div>
-                 <div className="mb-2">
-                   <div className="text-xl font-bold mb-1 text-slate-900">{report.publicTransport?.rating || "Unknown"}</div>
-                   <div className="text-xs text-slate-500 leading-tight">
-                      {report.publicTransport?.description || "Data unavailable"}
-                   </div>
-                 </div>
-                 {report.publicTransport?.types && report.publicTransport.types.length > 0 && (
-                   <div className="flex flex-wrap gap-2 mt-2">
-                      {report.publicTransport.types.map((type, i) => (
-                        <span key={i} className="px-2 py-1 bg-white border border-slate-200 rounded text-[10px] uppercase font-bold text-slate-600 flex items-center gap-1">
-                          {type.toLowerCase().includes('train') || type.toLowerCase().includes('metro') ? <TrainFront className="w-3 h-3" /> : <Bus className="w-3 h-3" />}
-                          {type}
-                        </span>
-                      ))}
-                   </div>
-                 )}
-              </div>
-
-               {/* Traffic Dynamics */}
-               {report.trafficAnalysis && (
-                <div className="p-4 rounded-xl border border-slate-200 bg-white flex flex-col h-full">
-                  <div className="flex justify-between items-start mb-3">
-                    <span className="font-medium opacity-90 text-slate-700">Traffic Dynamics</span>
-                    <span className={`px-2 py-0.5 text-xs font-bold uppercase rounded-full border ${getCongestionColor(report.trafficAnalysis.congestionLevel)}`}>
-                       {report.trafficAnalysis.congestionLevel} Congestion
-                    </span>
-                  </div>
-                  
-                  <div className="flex-1 space-y-3">
-                     <p className="text-xs text-slate-500 leading-tight border-l-2 border-slate-200 pl-2">
-                       {report.trafficAnalysis.description}
-                     </p>
-                     
-                     <div className="space-y-2 pt-2">
-                        {/* Car */}
-                        <div className="flex items-center justify-between text-xs">
-                           <div className="flex items-center gap-2 text-slate-600">
-                              <Car className="w-3.5 h-3.5" />
-                              <span>Cars</span>
-                           </div>
-                           <div className="flex items-center gap-1.5">
-                              <span className={`h-1.5 w-1.5 rounded-full ${
-                                report.trafficAnalysis.modalSplit.car === 'Heavy' ? 'bg-rose-500' :
-                                report.trafficAnalysis.modalSplit.car === 'Moderate' ? 'bg-amber-500' : 'bg-emerald-500'
-                              }`}></span>
-                              <span className="font-medium text-slate-700">{report.trafficAnalysis.modalSplit.car}</span>
-                           </div>
-                        </div>
-                        {/* Bus */}
-                         <div className="flex items-center justify-between text-xs">
-                           <div className="flex items-center gap-2 text-slate-600">
-                              <Bus className="w-3.5 h-3.5" />
-                              <span>Transit</span>
-                           </div>
-                           <div className="flex items-center gap-1.5">
-                              <span className={`h-1.5 w-1.5 rounded-full ${
-                                report.trafficAnalysis.modalSplit.bus === 'Heavy' ? 'bg-rose-500' :
-                                report.trafficAnalysis.modalSplit.bus === 'Moderate' ? 'bg-amber-500' : 'bg-emerald-500'
-                              }`}></span>
-                              <span className="font-medium text-slate-700">{report.trafficAnalysis.modalSplit.bus}</span>
-                           </div>
-                        </div>
-                        {/* Pedestrian */}
-                         <div className="flex items-center justify-between text-xs">
-                           <div className="flex items-center gap-2 text-slate-600">
-                              <Users className="w-3.5 h-3.5" />
-                              <span>Pedestrians</span>
-                           </div>
-                           <div className="flex items-center gap-1.5">
-                              <span className={`h-1.5 w-1.5 rounded-full ${
-                                report.trafficAnalysis.modalSplit.pedestrian === 'Heavy' ? 'bg-rose-500' :
-                                report.trafficAnalysis.modalSplit.pedestrian === 'Moderate' ? 'bg-amber-500' : 'bg-emerald-500'
-                              }`}></span>
-                              <span className="font-medium text-slate-700">{report.trafficAnalysis.modalSplit.pedestrian}</span>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-                  
-                  {report.trafficAnalysis.peakHours && (
-                     <div className="mt-3 pt-2 border-t border-slate-100 flex items-center gap-2 text-[10px] text-slate-400">
-                        <Clock className="w-3 h-3" /> Peak: {report.trafficAnalysis.peakHours}
-                     </div>
-                  )}
-                </div>
-               )}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Infrastructure Health */}
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                   <span className="text-slate-600 font-medium">Infra Health</span>
-                   <span className={`px-3 py-1 rounded-full text-sm font-bold bg-slate-100 ${
-                     report.streetHealth === 'Excellent' ? 'text-emerald-600 bg-emerald-50' : 
-                     report.streetHealth === 'Good' ? 'text-emerald-600 bg-emerald-50' :
-                     report.streetHealth === 'Fair' ? 'text-amber-600 bg-amber-50' : 
-                     'text-rose-600 bg-rose-50'
-                   }`}>{report.streetHealth}</span>
-                </div>
-                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full rounded-full ${getHealthStatus(report.streetHealth) === 'success' ? 'bg-emerald-500' : getHealthStatus(report.streetHealth) === 'warning' ? 'bg-amber-500' : 'bg-rose-500'}`} 
-                    style={{ width: report.streetHealth === 'Excellent' ? '100%' : report.streetHealth === 'Good' ? '75%' : report.streetHealth === 'Fair' ? '50%' : '25%' }}
-                  />
-                </div>
-                <p className="text-sm text-slate-500 italic">"{report.healthReasoning}"</p>
-              </div>
-
-              {/* Air Quality */}
-              <div className={`p-4 rounded-xl border ${getAqiColor(report.airQuality.aqi)} flex flex-col justify-between`}>
-                 <div className="flex justify-between items-start mb-2">
-                    <span className="font-medium opacity-90">Air Quality</span>
-                    <Wind className="w-5 h-5 opacity-80" />
-                 </div>
-                 <div>
-                   <div className="text-3xl font-bold mb-1">{report.airQuality.aqi}</div>
-                   <div className="text-sm font-semibold uppercase tracking-wider opacity-80 mb-2">{report.airQuality.category}</div>
-                   <div className="text-xs opacity-70">
-                      Pollutant: {report.airQuality.dominantPollutant}
-                   </div>
-                 </div>
-              </div>
-            </div>
-          </section>
-
-        </div>
-
-        {/* Sidebar / Secondary Stats */}
-        <div className="space-y-8">
-          
-          {/* Building Mix Chart */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-            <h3 className="text-lg font-semibold text-slate-800 mb-6 flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-indigo-600" /> Zoning Estimate
-            </h3>
-            
-            <div className="flex flex-col sm:flex-row items-center gap-8">
-              {/* Chart */}
-              <div className="h-40 w-40 flex-shrink-0 relative">
-                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={mixData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={35}
-                      outerRadius={60}
-                      paddingAngle={4}
-                      dataKey="value"
-                      stroke="none"
-                    >
-                      {mixData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      cursor={false}
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span className="text-xs font-bold text-slate-400">MIX</span>
-                 </div>
-              </div>
-
-              {/* Legend / Bars */}
-              <div className="flex-1 w-full space-y-4">
-                {mixData.length > 0 ? mixData.map((item) => (
-                  <div key={item.name} className="group">
-                    <div className="flex justify-between items-end mb-1">
-                      <span className="text-sm font-medium text-slate-600 flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></span>
-                        {item.name}
-                      </span>
-                      <span className="text-sm font-bold text-slate-800">{item.value}%</span>
-                    </div>
-                    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full rounded-full transition-all duration-500 ease-out" 
-                        style={{ width: `${item.value}%`, backgroundColor: item.color }} 
-                      />
-                    </div>
-                  </div>
-                )) : (
-                  <div className="text-slate-400 text-sm text-center italic">No zoning data available</div>
-                )}
-              </div>
-            </div>
-          </div>
-          
-          <div className="p-6 bg-slate-900 rounded-2xl text-slate-300 text-sm">
+           {/* About / Disclaimer - Moved here from sidebar */}
+           <div className="p-6 bg-slate-900 rounded-2xl text-slate-300 text-sm">
              <h4 className="font-bold text-white mb-2 flex items-center gap-2">
                <MapPin className="w-4 h-4" /> About this Report
              </h4>
@@ -661,11 +618,11 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, onReset }) => {
                <span className="text-white font-medium"> {report.streetName}</span>.
              </p>
              <div className="text-xs opacity-70 border-t border-slate-800 pt-3">
-               Infrastructure scores are estimates and may not reflect real-time conditions.
+               Infrastructure scores and metrics are estimates for planning and scouting purposes.
              </div>
-          </div>
-
+           </div>
         </div>
+
       </div>
 
       <div className="flex justify-center pb-12">
