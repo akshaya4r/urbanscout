@@ -1,0 +1,5 @@
+{
+  "name": "Copy of StreetScout - Urban Maps Analyzer",
+  "description": "An AI-powered urban analysis tool that generates comprehensive infrastructure reports from Google Maps data, including detailed metrics on street width, zoning mix, vegetation coverage, and drainage.",
+  "requestFramePermissions": []
+}
