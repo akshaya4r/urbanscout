@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { AnalysisState } from './types';
 import { analyzeLocation } from './services/geminiService';
@@ -70,10 +71,10 @@ const App: React.FC = () => {
           <div className="max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-700">
             <div className="text-center mb-10">
               <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 leading-tight">
-                Instant urban reports for <span className="text-indigo-600">any street</span>
+                Instant urban reports for <span className="text-indigo-600">any locality</span>
               </h1>
               <p className="text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
-                Just enter a location name. Our AI scouts Google Maps for satellite and street view data to generate a comprehensive infrastructure analysis.
+                Just enter a street, district, or city name. Our AI scouts Google Maps to generate a comprehensive infrastructure and public realm analysis.
               </p>
             </div>
 
@@ -88,7 +89,7 @@ const App: React.FC = () => {
                     <Zap className="w-5 h-5" />
                   </div>
                   <h3 className="font-semibold text-slate-900 mb-1">Instant Scouting</h3>
-                  <p className="text-sm text-slate-500">No images needed. Just type an address.</p>
+                  <p className="text-sm text-slate-500">No images needed. Just type a location.</p>
                </div>
                <div className="p-4 rounded-xl bg-white border border-slate-100 shadow-sm">
                   <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -102,7 +103,7 @@ const App: React.FC = () => {
                     <Loader2 className="w-5 h-5" />
                   </div>
                   <h3 className="font-semibold text-slate-900 mb-1">Deep Analysis</h3>
-                  <p className="text-sm text-slate-500">Checks for drains, lanes, and pavement coverage.</p>
+                  <p className="text-sm text-slate-500">Checks for accessibility, zoning, and parks.</p>
                </div>
             </div>
           </div>

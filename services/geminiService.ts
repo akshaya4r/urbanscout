@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 import { StreetReport } from "../types";
 
@@ -15,15 +16,27 @@ export const analyzeLocation = async (locationQuery: string): Promise<StreetRepo
       
       Instructions:
       1. Use the Google Maps tool to identify and verify the specific location.
-      2. Based on the identified location, its context (e.g., urban density, city planning data), and your knowledge of the area, ESTIMATE the likely physical infrastructure.
-      3. Return ONLY valid JSON. Do not include markdown formatting, backticks, or conversational text.
+      2. Determine the LOCATION TYPE: Is this a specific "Street", a broader "District", or a whole "City"?
+      3. Based on the location type, ESTIMATE the physical infrastructure. 
+         - If it is a Street: Provide specific details for that street.
+         - If it is a District/City: Provide AGGREGATE/AVERAGE details for the area (e.g., "Avg. width ~15m", "Mixed pavement conditions").
+      4. Return ONLY valid JSON. Do not include markdown formatting, backticks, or conversational text.
       
       JSON Structure:
       {
         "streetName": "Formal Name of the location",
-        "estimatedWidth": "Estimate in meters (e.g. '12m')",
-        "hasCyclingLane": boolean,
+        "locationType": "Street" | "District" | "City",
+        "estimatedWidth": "Estimate in meters (e.g. '12m' or 'Avg 15m')",
+        "hasCyclingLane": boolean (true if common in this street/district),
         "hasPavement": boolean,
+        "pavementAnalysis": {
+           "exists": boolean,
+           "condition": "Good" | "Fair" | "Poor" | "N/A",
+           "isRaised": boolean (typical for this area),
+           "isWheelchairFriendly": boolean,
+           "obstructions": ["string"] (e.g. "Parked Vehicles", "Trees", "Utility Poles", "None"),
+           "safetyDescription": "Specific details on walkability and typical hazards."
+        },
         "streetHealth": "Poor" | "Fair" | "Good" | "Excellent",
         "healthReasoning": "Brief explanation based on typical maintenance in this area",
         "hasOpenDrains": boolean,
@@ -33,13 +46,21 @@ export const analyzeLocation = async (locationQuery: string): Promise<StreetRepo
           "commercial": number (percentage 0-100),
           "other": number (percentage 0-100)
         }, // Ensure these 3 numbers sum to exactly 100
+        "openSpaceAnalysis": {
+           "exists": boolean,
+           "names": ["string"], // Specific names of nearby open spaces.
+           "types": ["string"], // e.g. "Community Park", "Playground", "Plaza"
+           "amenities": ["string"], // e.g. "Benches", "Water Fountain"
+           "quality": "Excellent" | "Good" | "Fair" | "Poor" | "N/A",
+           "description": "Brief description of the open spaces availability and condition."
+        },
         "summary": "A 2-sentence summary of the likely infrastructure.",
         "infrastructureScore": number (0-100, based on walkability, road condition, and planning),
-        "infrastructureScoreReasoning": "One sentence explaining the main factor driving this score (e.g. 'High score due to excellent pedestrian separation and greenery' or 'Low score reflects poor maintenance and lack of sidewalks').",
+        "infrastructureScoreReasoning": "One sentence explaining the main factor driving this score.",
         "airQuality": {
-          "aqi": number (estimate 0-500 based on typical recent data for this city/area),
+          "aqi": number (estimate 0-500 based on typical recent data),
           "category": "Good" | "Moderate" | "Unhealthy" | "Hazardous",
-          "dominantPollutant": "e.g. 'PM2.5', 'Ozone', 'NO2' or 'N/A'"
+          "dominantPollutant": "e.g. 'PM2.5', 'Ozone' or 'N/A'"
         }
       }
     `;
