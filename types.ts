@@ -22,10 +22,14 @@ export interface StreetReport {
     commercial: number;
     other: number;
   };
+  cleanlinessAnalysis: {
+    rating: 'Excellent' | 'Good' | 'Fair' | 'Poor';
+    debrisLevel: 'None' | 'Minor' | 'Moderate' | 'Heavy';
+    details: string;
+  };
   openSpaceAnalysis: {
     exists: boolean;
-    names: string[]; // e.g. ["Central Park", "Times Square Plaza"]
-    types: string[]; // e.g. ["Park", "Playground", "Plaza", "Garden"]
+    spaces: { name: string; type: string; distance: string }[];
     amenities: string[]; // e.g. ["Benches", "Water Fountain", "Public Art", "Shade"]
     quality: 'Excellent' | 'Good' | 'Fair' | 'Poor' | 'N/A';
     description: string;
@@ -34,6 +38,22 @@ export interface StreetReport {
     coverage: 'Excellent' | 'Good' | 'Fair' | 'Poor' | 'None';
     type: string; // e.g. "LED", "Sodium", "Mixed"
     qualityDescription: string;
+  };
+  publicTransport: {
+    rating: 'Excellent' | 'Good' | 'Fair' | 'Poor' | 'None';
+    types: string[]; // e.g. ["Bus", "Metro", "Tram"]
+    nearbyStops: string[];
+    description: string;
+  };
+  trafficAnalysis: {
+    congestionLevel: 'Low' | 'Moderate' | 'Heavy' | 'Severe';
+    description: string;
+    peakHours: string; // e.g. "08:00-10:00, 17:00-19:00"
+    modalSplit: {
+      car: 'Low' | 'Moderate' | 'Heavy';
+      bus: 'Low' | 'Moderate' | 'Heavy';
+      pedestrian: 'Low' | 'Moderate' | 'Heavy';
+    };
   };
   summary: string;
   infrastructureScore: number; // 0-100

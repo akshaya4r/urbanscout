@@ -19,53 +19,75 @@ export const analyzeLocation = async (locationQuery: string): Promise<StreetRepo
       2. Determine the LOCATION TYPE: Is this a specific "Street", a broader "District", or a whole "City"?
       3. Based on the location type, ESTIMATE the physical infrastructure. 
          - If it is a Street: Provide specific details for that street.
-         - If it is a District/City: Provide AGGREGATE/AVERAGE details for the area (e.g., "Avg. width ~15m", "Mixed pavement conditions").
-      4. Return ONLY valid JSON. Do not include markdown formatting, backticks, or conversational text.
+         - If it is a District/City: Provide AGGREGATE/AVERAGE details for the area.
+      4. Return ONLY valid JSON.
       
       JSON Structure:
       {
         "streetName": "Formal Name of the location",
         "locationType": "Street" | "District" | "City",
         "estimatedWidth": "Estimate in meters (e.g. '12m' or 'Avg 15m')",
-        "hasCyclingLane": boolean (true if common in this street/district),
+        "hasCyclingLane": boolean,
         "hasPavement": boolean,
         "pavementAnalysis": {
            "exists": boolean,
            "condition": "Good" | "Fair" | "Poor" | "N/A",
-           "isRaised": boolean (typical for this area),
+           "isRaised": boolean,
            "isWheelchairFriendly": boolean,
-           "obstructions": ["string"] (e.g. "Parked Vehicles", "Trees", "Utility Poles", "None"),
-           "safetyDescription": "Specific details on walkability and typical hazards."
+           "obstructions": ["string"] (e.g. "Parked Vehicles", "Trees", "None"),
+           "safetyDescription": "Specific details on walkability."
         },
         "streetHealth": "Poor" | "Fair" | "Good" | "Excellent",
-        "healthReasoning": "Brief explanation based on typical maintenance in this area",
+        "healthReasoning": "Brief explanation based on typical maintenance",
         "hasOpenDrains": boolean,
         "vegetationLevel": "None" | "Sparse" | "Moderate" | "Abundant",
         "buildingMix": {
-          "residential": number (percentage 0-100),
-          "commercial": number (percentage 0-100),
-          "other": number (percentage 0-100)
-        }, // Ensure these 3 numbers sum to exactly 100
+          "residential": number,
+          "commercial": number,
+          "other": number
+        },
+        "cleanlinessAnalysis": {
+           "rating": "Excellent" | "Good" | "Fair" | "Poor",
+           "debrisLevel": "None" | "Minor" | "Moderate" | "Heavy",
+           "details": "Description of garbage/debris presence (e.g. 'Litter free', 'Overflowing bins')."
+        },
         "openSpaceAnalysis": {
            "exists": boolean,
-           "names": ["string"], // Specific names of nearby open spaces.
-           "types": ["string"], // e.g. "Community Park", "Playground", "Plaza"
-           "amenities": ["string"], // e.g. "Benches", "Water Fountain"
+           "spaces": [ 
+              { "name": "string", "type": "string", "distance": "string (e.g. '200m' or '5 min walk')" } 
+           ],
+           "amenities": ["string"],
            "quality": "Excellent" | "Good" | "Fair" | "Poor" | "N/A",
-           "description": "Brief description of the open spaces availability and condition."
+           "description": "Brief description of the open spaces availability. IMPORTANT: Only include spaces strictly within the locality or a short walkable distance (max 1km or 15 min walk)."
         },
         "lightingAnalysis": {
            "coverage": "Excellent" | "Good" | "Fair" | "Poor" | "None",
-           "type": "string (e.g. Modern LED, Sodium Vapor, Mixed, Sparse)",
-           "qualityDescription": "Brief description of the lighting condition at night."
+           "type": "string (e.g. Modern LED, Sodium Vapor, Mixed)",
+           "qualityDescription": "Brief description of the lighting quality."
+        },
+        "publicTransport": {
+           "rating": "Excellent" | "Good" | "Fair" | "Poor" | "None",
+           "types": ["string"] (e.g. "Bus", "Tram", "Subway"),
+           "nearbyStops": ["string"] (e.g. "Main St Station", "Bus Stop 42"),
+           "description": "Brief summary of connectivity options."
+        },
+        "trafficAnalysis": {
+           "congestionLevel": "Low" | "Moderate" | "Heavy" | "Severe",
+           "description": "Brief description of typical traffic flow and current observations if available.",
+           "peakHours": "string (e.g. '08:00-09:30, 17:00-19:00')",
+           "modalSplit": {
+              "car": "Low" | "Moderate" | "Heavy",
+              "bus": "Low" | "Moderate" | "Heavy",
+              "pedestrian": "Low" | "Moderate" | "Heavy"
+           }
         },
         "summary": "A 2-sentence summary of the likely infrastructure.",
-        "infrastructureScore": number (0-100, based on walkability, road condition, and planning),
+        "infrastructureScore": number (0-100),
         "infrastructureScoreReasoning": "One sentence explaining the main factor driving this score.",
         "airQuality": {
-          "aqi": number (estimate 0-500 based on typical recent data),
+          "aqi": number,
           "category": "Good" | "Moderate" | "Unhealthy" | "Hazardous",
-          "dominantPollutant": "e.g. 'PM2.5', 'Ozone' or 'N/A'"
+          "dominantPollutant": "string"
         }
       }
     `;
@@ -81,7 +103,6 @@ export const analyzeLocation = async (locationQuery: string): Promise<StreetRepo
     const text = response.text;
     if (!text) throw new Error("No response from AI");
 
-    // Check for standard refusals
     const trimmedText = text.trim();
     if (
       trimmedText.startsWith("I am sorry") || 
@@ -91,11 +112,9 @@ export const analyzeLocation = async (locationQuery: string): Promise<StreetRepo
       throw new Error("The AI refused to analyze this location. It may be restricted or the model cannot access data for this specific query.");
     }
 
-    // Extract Google Maps URI from grounding metadata if available
     let mapUrl = undefined;
     const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
     if (groundingChunks) {
-      // Find a chunk that has a web URI or map URI
       const mapChunk = groundingChunks.find(c => 
         c.web?.uri?.includes('google.com/maps') || 
         (c as any).maps?.uri
@@ -106,14 +125,13 @@ export const analyzeLocation = async (locationQuery: string): Promise<StreetRepo
       }
     }
 
-    // Clean markdown code blocks if present
     const cleanJson = text.replace(/```json\n?|\n?```/g, "").trim();
     
     try {
       const data = JSON.parse(cleanJson);
       return {
         ...data,
-        mapUrl // Inject the map URL found in grounding
+        mapUrl
       };
     } catch (parseError) {
       console.error("Failed to parse JSON:", cleanJson);
