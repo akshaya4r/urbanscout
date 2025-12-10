@@ -20,8 +20,14 @@ export const analyzeLocation = async (locationQuery: string): Promise<StreetRepo
       4. Based on the location type, ESTIMATE the physical infrastructure. 
          - If it is a Street: Provide specific details for that street.
          - If it is a District/City: Provide AGGREGATE/AVERAGE details for the area.
-      5. For Biodiversity/Flora: Use the term "Introduced" for non-native species (not "Exotic").
-      6. Return ONLY valid JSON.
+      5. **BIODIVERSITY ANALYSIS & ORIGIN CHECK**: 
+         - Identify common plant species (Trees, Shrubs) for this specific geolocated region.
+         - **CRITICAL**: Use 'Introduced' for non-native species.
+         - **STRICT ANTI-BIAS RULE**: Do NOT assume tropical plants are 'Introduced'. You MUST cross-reference the plant's scientific origin with the location's geography.
+         - *Example*: Mango trees (Mangifera indica) are NATIVE to India/South Asia. If the location is in India, Mango is NATIVE.
+         - Use Google Search to verify the "Native range of [Species]" if you are not 100% sure.
+      6. **PAVEMENT CHECK**: Do NOT assume curbs are raised. Many streets (especially shared spaces, rural roads, or specific residential zones) have flush/level borders. Only mark "isRaised" as true if there is a clear vertical curb separation.
+      7. Return ONLY valid JSON.
       
       JSON Structure:
       {
@@ -33,7 +39,7 @@ export const analyzeLocation = async (locationQuery: string): Promise<StreetRepo
         "pavementAnalysis": {
            "exists": boolean,
            "condition": "Good" | "Fair" | "Poor" | "N/A",
-           "isRaised": boolean,
+           "isRaised": boolean, 
            "isWheelchairFriendly": boolean,
            "obstructions": ["string"] (e.g. "Parked Vehicles", "Trees", "None"),
            "safetyDescription": "Specific details on walkability."

@@ -433,14 +433,14 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, onReset }) => {
 
                  {/* Key Features Grid */}
                  <div className="grid grid-cols-2 gap-3">
-                    {/* Raised Status */}
+                    {/* Curb Height Status - RENAMED from Elevation */}
                     <div className={`p-3 rounded-lg border ${report.pavementAnalysis.isRaised ? 'bg-indigo-50 border-indigo-100' : 'bg-slate-50 border-slate-100'}`}>
                        <div className="flex items-center gap-2 mb-1">
                           <ArrowUpFromLine className={`w-4 h-4 ${report.pavementAnalysis.isRaised ? 'text-indigo-600' : 'text-slate-400'}`} />
-                          <span className={`text-xs font-bold uppercase ${report.pavementAnalysis.isRaised ? 'text-indigo-700' : 'text-slate-500'}`}>Elevation</span>
+                          <span className={`text-xs font-bold uppercase ${report.pavementAnalysis.isRaised ? 'text-indigo-700' : 'text-slate-500'}`}>Curb Structure</span>
                        </div>
                        <span className={`text-sm font-medium ${report.pavementAnalysis.isRaised ? 'text-indigo-900' : 'text-slate-600'}`}>
-                         {report.pavementAnalysis.isRaised ? "Raised Curb" : "Flush / None"}
+                         {report.pavementAnalysis.isRaised ? "Standard Curb" : "Flush / Shared"}
                        </span>
                     </div>
 
