@@ -17,6 +17,17 @@ export interface StreetReport {
   healthReasoning: string;
   hasOpenDrains: boolean;
   vegetationLevel: 'None' | 'Sparse' | 'Moderate' | 'Abundant';
+  biodiversityAnalysis: {
+    detectedSpecies: Array<{
+      commonName: string;
+      scientificName: string;
+      type: 'Tree' | 'Shrub' | 'Flowering Plant' | 'Grass' | 'Other';
+      isNative: boolean;
+      abundance: 'Rare' | 'Common' | 'Dominant';
+    }>;
+    ecosystemHealth: 'Poor' | 'Fair' | 'Good' | 'Excellent';
+    nativeRatio: string; // e.g. "Mostly Introduced" or "Mix of Native/Exotic"
+  };
   buildingMix: {
     residential: number;
     commercial: number;
@@ -43,12 +54,6 @@ export interface StreetReport {
     coverage: 'Excellent' | 'Good' | 'Fair' | 'Poor' | 'None';
     type: string; // e.g. "LED", "Sodium", "Mixed"
     qualityDescription: string;
-  };
-  utilityAnalysis: {
-    waterSupply: 'Centralized' | 'Local/Well' | 'Unknown';
-    wasteWater: 'Centralized Sewer' | 'Septic/Local' | 'Open Drainage';
-    sewageTreatment: 'Treatment Plant' | 'Local/None' | 'Unknown';
-    description: string;
   };
   noisePollution: {
     level: 'Low' | 'Moderate' | 'High' | 'Severe';

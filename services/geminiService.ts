@@ -41,6 +41,19 @@ export const analyzeLocation = async (locationQuery: string): Promise<StreetRepo
         "healthReasoning": "Brief explanation based on typical maintenance",
         "hasOpenDrains": boolean,
         "vegetationLevel": "None" | "Sparse" | "Moderate" | "Abundant",
+        "biodiversityAnalysis": {
+           "detectedSpecies": [
+              {
+                "commonName": "string",
+                "scientificName": "string",
+                "type": "Tree" | "Shrub" | "Flowering Plant" | "Grass" | "Other",
+                "isNative": boolean,
+                "abundance": "Rare" | "Common" | "Dominant"
+              }
+           ],
+           "ecosystemHealth": "Poor" | "Fair" | "Good" | "Excellent",
+           "nativeRatio": "string (e.g. 'Mostly Native' or 'Introduced Species')"
+        },
         "buildingMix": {
           "residential": number,
           "commercial": number,
