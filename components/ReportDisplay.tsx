@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { StreetReport } from '../types';
 import MetricCard from './MetricCard';
@@ -45,7 +44,12 @@ import {
   BookOpen,
   Leaf,
   Sprout,
-  Shrub
+  Shrub,
+  Palette,
+  Newspaper,
+  TrendingUp,
+  TrendingDown,
+  Minus
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
@@ -625,7 +629,16 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, onReset }) => {
 
                 <div className="grid grid-cols-1 gap-2">
                    {report.biodiversityAnalysis.detectedSpecies && report.biodiversityAnalysis.detectedSpecies.length > 0 ? (
-                      report.biodiversityAnalysis.detectedSpecies.map((plant, idx) => (
+                      report.biodiversityAnalysis.detectedSpecies.map((plant, idx) => {
+                        // Helper to get fill level for abundance chart
+                        const getFillLevel = (abundance: string) => {
+                            if (abundance === 'Dominant') return 3;
+                            if (abundance === 'Common') return 2;
+                            return 1;
+                        };
+                        const fillLevel = getFillLevel(plant.abundance);
+
+                        return (
                         <div key={idx} className="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-100 rounded-lg">
                            <div className="flex items-center gap-3">
                               <div className={`p-1.5 rounded-full ${plant.isNative ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
@@ -640,24 +653,30 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, onReset }) => {
                                  <div className="text-[10px] text-slate-500 italic">{plant.scientificName}</div>
                               </div>
                            </div>
-                           <div className="flex flex-col items-end gap-1">
-                              <div className="flex gap-1">
-                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                                  plant.abundance === 'Dominant' ? 'bg-slate-200 text-slate-700' : 
-                                  plant.abundance === 'Common' ? 'bg-slate-100 text-slate-600' : 'bg-white border border-slate-100 text-slate-400'
-                                }`}>
-                                  {plant.abundance.toUpperCase()}
-                                </span>
-                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                           
+                           <div className="flex flex-col items-end gap-1.5 min-w-[80px]">
+                              {/* Native/Introduced Tag */}
+                              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${
                                   plant.isNative ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
                                 }`}>
-                                  {plant.isNative ? 'NATIVE' : 'EXOTIC'}
-                                </span>
+                                  {plant.isNative ? 'NATIVE' : 'INTRODUCED'}
+                              </span>
+
+                              {/* Abundance Chart */}
+                              <div className="flex items-center gap-1.5">
+                                 <div className="flex gap-0.5">
+                                    {[1, 2, 3].map((bar) => (
+                                        <div 
+                                          key={bar} 
+                                          className={`w-1.5 h-2 rounded-sm ${bar <= fillLevel ? 'bg-slate-400' : 'bg-slate-200'}`}
+                                        />
+                                    ))}
+                                 </div>
+                                 <span className="text-[9px] font-bold text-slate-500 uppercase">{plant.abundance}</span>
                               </div>
-                              <span className="text-[9px] text-slate-400 font-medium uppercase">{plant.type}</span>
                            </div>
                         </div>
-                      ))
+                      )})
                    ) : (
                       <div className="text-slate-400 text-sm italic py-2 text-center">No distinct species identified.</div>
                    )}
@@ -705,35 +724,59 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, onReset }) => {
                    </p>
 
                    {/* Nearby Locations List */}
-                   <div className="bg-white/60 rounded-xl p-4 border border-slate-100/50 backdrop-blur-sm">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">Walkable Spaces</span>
+                   <div className="bg-white/50 rounded-xl p-3 border border-indigo-50/50 backdrop-blur-sm mt-4">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2 px-1">Walkable Spaces</span>
                     {report.openSpaceAnalysis.spaces && report.openSpaceAnalysis.spaces.length > 0 ? (
-                      <div className="space-y-3">
-                        {report.openSpaceAnalysis.spaces.map((space, idx) => (
-                           <div key={idx} className="flex items-center justify-between bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm transition-transform hover:scale-[1.02]">
-                              <div className="flex items-center gap-3">
-                                 <div className="bg-indigo-50 p-1.5 rounded-full text-indigo-600">
-                                    <MapPin className="w-3.5 h-3.5" />
+                      <div className="flex flex-col gap-1.5">
+                        {report.openSpaceAnalysis.spaces.map((space, idx) => {
+                           let Icon = MapPin;
+                           let colorClass = "text-indigo-500 bg-indigo-50";
+
+                           if (space.type.toLowerCase().includes('water')) { Icon = Waves; colorClass = "text-cyan-600 bg-cyan-50"; }
+                           else if (space.type.toLowerCase().includes('garden') || space.type.toLowerCase().includes('park')) { Icon = Palmtree; colorClass = "text-emerald-600 bg-emerald-50"; }
+                           else if (space.type.toLowerCase().includes('play')) { Icon = Sun; colorClass = "text-amber-600 bg-amber-50"; }
+                           else if (space.type.toLowerCase().includes('temple') || space.type.toLowerCase().includes('church')) { Icon = Landmark; colorClass = "text-orange-600 bg-orange-50"; }
+
+                           return (
+                           <div key={idx} className="flex items-center justify-between p-2 rounded-lg hover:bg-white transition-all border border-transparent hover:border-indigo-100 group">
+                              <div className="flex items-center gap-2.5 overflow-hidden">
+                                 <div className={`p-1.5 rounded-md shrink-0 ${colorClass}`}>
+                                    <Icon className="w-3.5 h-3.5" />
                                  </div>
                                  <div className="min-w-0">
-                                    <div className="text-sm font-semibold text-slate-800 truncate max-w-[120px]">{space.name}</div>
-                                    <div className="text-[10px] text-slate-500">{space.type}</div>
+                                    <div className="text-xs font-semibold text-slate-700 truncate group-hover:text-indigo-700 transition-colors">{space.name}</div>
+                                    <div className="text-[10px] text-slate-400 truncate">{space.type}</div>
                                  </div>
                               </div>
-                              <div className="flex items-center gap-1 px-2 py-0.5 bg-slate-100 rounded text-[10px] font-medium text-slate-600 shrink-0">
-                                 <Navigation className="w-3 h-3" /> {space.distance}
+                              <div className="text-[10px] font-medium text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100 whitespace-nowrap ml-2">
+                                 {space.distance}
                               </div>
                            </div>
-                        ))}
+                        )})}
                       </div>
                     ) : (
-                      <div className="text-center text-slate-400 py-4 text-xs">No specific names identified.</div>
+                      <div className="text-center text-slate-400 py-2 text-[10px] italic">No specific locations listed.</div>
                     )}
                   </div>
+
+                   {/* Public Art Section */}
+                   {report.openSpaceAnalysis.publicArt && report.openSpaceAnalysis.publicArt.length > 0 && report.openSpaceAnalysis.publicArt[0] !== "None" && (
+                     <div className="mt-4">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">Public Art</span>
+                        <div className="flex flex-col gap-2">
+                           {report.openSpaceAnalysis.publicArt.map((art, idx) => (
+                             <div key={idx} className="flex items-center gap-2 text-xs text-slate-700 bg-purple-50 px-3 py-2 rounded-lg border border-purple-100">
+                                <Palette className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                                <span>{art}</span>
+                             </div>
+                           ))}
+                        </div>
+                     </div>
+                   )}
                    
                    {/* Amenities - Enhanced Icons */}
                    {report.openSpaceAnalysis.amenities.length > 0 && report.openSpaceAnalysis.amenities[0] !== 'None' && (
-                     <div>
+                     <div className="mt-4">
                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">Amenities</span>
                        <div className="flex flex-wrap gap-2">
                          {report.openSpaceAnalysis.amenities.map((amenity, idx) => {
@@ -789,6 +832,45 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, onReset }) => {
         </div>
 
       </div>
+      
+      {/* 6. Future Developments & News - Full Width at Bottom */}
+      {report.developmentNews && report.developmentNews.length > 0 && (
+         <div className="mb-12 bg-white rounded-2xl shadow-lg shadow-indigo-100/50 border border-slate-100 overflow-hidden">
+             <div className="bg-slate-50 border-b border-slate-100 px-6 py-4 flex justify-between items-center">
+                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <Newspaper className="w-5 h-5 text-indigo-600" /> Future Developments & News
+                </h3>
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Infrastructure Radar</span>
+             </div>
+             <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {report.developmentNews.map((news, idx) => (
+                  <div key={idx} className="flex flex-col h-full">
+                     <div className="flex items-start justify-between gap-3 mb-2">
+                        <div className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border inline-flex items-center gap-1 ${
+                          news.impact === 'Positive' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                          news.impact === 'Negative' ? 'bg-rose-50 text-rose-700 border-rose-200' :
+                          'bg-slate-50 text-slate-600 border-slate-200'
+                        }`}>
+                          {news.impact === 'Positive' ? <TrendingUp className="w-3 h-3" /> :
+                           news.impact === 'Negative' ? <TrendingDown className="w-3 h-3" /> :
+                           <Minus className="w-3 h-3" />}
+                          {news.impact} Impact
+                        </div>
+                        {news.timeframe && (
+                          <span className="text-[10px] text-slate-400 font-medium bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">
+                            {news.timeframe}
+                          </span>
+                        )}
+                     </div>
+                     <h4 className="font-bold text-slate-800 text-sm mb-2 leading-tight">{news.headline}</h4>
+                     <p className="text-xs text-slate-500 leading-relaxed flex-1">
+                       {news.summary}
+                     </p>
+                  </div>
+                ))}
+             </div>
+         </div>
+      )}
 
       <div className="flex justify-center pb-12">
         <button 

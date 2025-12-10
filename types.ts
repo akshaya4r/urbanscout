@@ -1,4 +1,3 @@
-
 export interface StreetReport {
   streetName: string;
   locationType: 'Street' | 'District' | 'City' | 'Unknown';
@@ -46,7 +45,8 @@ export interface StreetReport {
   openSpaceAnalysis: {
     exists: boolean;
     spaces: { name: string; type: string; distance: string }[];
-    amenities: string[]; // e.g. ["Benches", "Water Fountain", "Public Art", "Shade"]
+    amenities: string[]; // e.g. ["Benches", "Water Fountain", "Shade"]
+    publicArt: string[]; // e.g. ["Mural on 5th", "Statue of Founder"]
     quality: 'Excellent' | 'Good' | 'Fair' | 'Poor' | 'N/A';
     description: string;
   };
@@ -75,6 +75,12 @@ export interface StreetReport {
       pedestrian: 'Low' | 'Moderate' | 'Heavy';
     };
   };
+  developmentNews: Array<{
+    headline: string;
+    summary: string;
+    impact: 'Positive' | 'Negative' | 'Neutral'; // How it affects the score
+    timeframe?: string;
+  }>;
   summary: string;
   infrastructureScore: number; // 0-100
   infrastructureScoreReasoning: string;

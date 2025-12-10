@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AnalysisState } from './types';
 import { analyzeLocation } from './services/geminiService';
@@ -56,7 +55,7 @@ const App: React.FC = () => {
             <div className="bg-indigo-600 p-1.5 rounded-lg">
               <Satellite className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-xl text-slate-900 tracking-tight">StreetScout</span>
+            <span className="font-bold text-xl text-slate-900 tracking-tight">UrbanScout</span>
           </div>
           <div className="flex items-center gap-4 text-sm font-medium text-slate-600">
              <span className="hidden md:block">Powered by Gemini 2.5 + Maps</span>

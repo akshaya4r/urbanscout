@@ -1,4 +1,3 @@
-
 import { GoogleGenAI } from "@google/genai";
 import { StreetReport } from "../types";
 
@@ -11,16 +10,18 @@ export const analyzeLocation = async (locationQuery: string): Promise<StreetRepo
 
   try {
     const prompt = `
-      You are an urban planning AI assistant.
+      You are UrbanScout, an expert urban planning AI assistant.
       Task: Generate a structured infrastructure report for the location: "${locationQuery}".
       
       Instructions:
       1. Use the Google Maps tool to identify and verify the specific location.
-      2. Determine the LOCATION TYPE: Is this a specific "Street", a broader "District", or a whole "City"?
-      3. Based on the location type, ESTIMATE the physical infrastructure. 
+      2. Use Google Search to find recent infrastructure development news, planned projects, or council updates affecting this area.
+      3. Determine the LOCATION TYPE: Is this a specific "Street", a broader "District", or a whole "City"?
+      4. Based on the location type, ESTIMATE the physical infrastructure. 
          - If it is a Street: Provide specific details for that street.
          - If it is a District/City: Provide AGGREGATE/AVERAGE details for the area.
-      4. Return ONLY valid JSON.
+      5. For Biodiversity/Flora: Use the term "Introduced" for non-native species (not "Exotic").
+      6. Return ONLY valid JSON.
       
       JSON Structure:
       {
@@ -52,7 +53,7 @@ export const analyzeLocation = async (locationQuery: string): Promise<StreetRepo
               }
            ],
            "ecosystemHealth": "Poor" | "Fair" | "Good" | "Excellent",
-           "nativeRatio": "string (e.g. 'Mostly Native' or 'Introduced Species')"
+           "nativeRatio": "string (e.g. 'Mostly Native' or 'Mix of Native & Introduced')"
         },
         "buildingMix": {
           "residential": number,
@@ -75,6 +76,7 @@ export const analyzeLocation = async (locationQuery: string): Promise<StreetRepo
               { "name": "string", "type": "string", "distance": "string (e.g. '200m' or '5 min walk')" } 
            ], // IMPORTANT: Include Parks, Gardens, Plazas, AND Temples/Religious Grounds (which act as community spaces).
            "amenities": ["string"], // IMPORTANT: Include physical features (Benches) AND civic facilities (Libraries, Community Centers, Municipal Buildings).
+           "publicArt": ["string"], // Identify specific statues, murals, sculptures, or street art installations.
            "quality": "Excellent" | "Good" | "Fair" | "Poor" | "N/A",
            "description": "Brief description of the open spaces availability. Only include spaces strictly within the locality or a short walkable distance (max 1km)."
         },
@@ -103,6 +105,14 @@ export const analyzeLocation = async (locationQuery: string): Promise<StreetRepo
               "pedestrian": "Low" | "Moderate" | "Heavy"
            }
         },
+        "developmentNews": [
+           {
+              "headline": "string",
+              "summary": "string",
+              "impact": "Positive" | "Negative" | "Neutral",
+              "timeframe": "string (e.g. '2025', 'Under Construction')"
+           }
+        ],
         "summary": "A 2-sentence summary of the likely infrastructure.",
         "infrastructureScore": number (0-100),
         "infrastructureScoreReasoning": "One sentence explaining the main factor driving this score.",
@@ -118,7 +128,7 @@ export const analyzeLocation = async (locationQuery: string): Promise<StreetRepo
       model: "gemini-2.5-flash",
       contents: prompt,
       config: {
-        tools: [{ googleMaps: {} }],
+        tools: [{ googleMaps: {} }, { googleSearch: {} }],
       }
     });
 
