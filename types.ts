@@ -27,6 +27,11 @@ export interface StreetReport {
     debrisLevel: 'None' | 'Minor' | 'Moderate' | 'Heavy';
     details: string;
   };
+  binsAnalysis: {
+    availability: 'High' | 'Moderate' | 'Low' | 'None';
+    estimatedSpacing: string; // e.g. "Every 50m", "Rare"
+    correlationAnalysis: string; // e.g. "Littering is likely due to lack of bins."
+  };
   openSpaceAnalysis: {
     exists: boolean;
     spaces: { name: string; type: string; distance: string }[];
@@ -38,6 +43,16 @@ export interface StreetReport {
     coverage: 'Excellent' | 'Good' | 'Fair' | 'Poor' | 'None';
     type: string; // e.g. "LED", "Sodium", "Mixed"
     qualityDescription: string;
+  };
+  utilityAnalysis: {
+    waterSupply: 'Centralized' | 'Local/Well' | 'Unknown';
+    wasteWater: 'Centralized Sewer' | 'Septic/Local' | 'Open Drainage';
+    sewageTreatment: 'Treatment Plant' | 'Local/None' | 'Unknown';
+    description: string;
+  };
+  noisePollution: {
+    level: 'Low' | 'Moderate' | 'High' | 'Severe';
+    description: string;
   };
   publicTransport: {
     rating: 'Excellent' | 'Good' | 'Fair' | 'Poor' | 'None';

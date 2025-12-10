@@ -51,19 +51,28 @@ export const analyzeLocation = async (locationQuery: string): Promise<StreetRepo
            "debrisLevel": "None" | "Minor" | "Moderate" | "Heavy",
            "details": "Description of garbage/debris presence (e.g. 'Litter free', 'Overflowing bins')."
         },
+        "binsAnalysis": {
+           "availability": "High" | "Moderate" | "Low" | "None",
+           "estimatedSpacing": "string (e.g. 'Every 50m', 'At corners', 'Rare')",
+           "correlationAnalysis": "One sentence analyzing if visible littering (or lack thereof) is related to the availability of bins."
+        },
         "openSpaceAnalysis": {
            "exists": boolean,
            "spaces": [ 
               { "name": "string", "type": "string", "distance": "string (e.g. '200m' or '5 min walk')" } 
-           ],
-           "amenities": ["string"],
+           ], // IMPORTANT: Include Parks, Gardens, Plazas, AND Temples/Religious Grounds (which act as community spaces).
+           "amenities": ["string"], // IMPORTANT: Include physical features (Benches) AND civic facilities (Libraries, Community Centers, Municipal Buildings).
            "quality": "Excellent" | "Good" | "Fair" | "Poor" | "N/A",
-           "description": "Brief description of the open spaces availability. IMPORTANT: Only include spaces strictly within the locality or a short walkable distance (max 1km or 15 min walk)."
+           "description": "Brief description of the open spaces availability. Only include spaces strictly within the locality or a short walkable distance (max 1km)."
         },
         "lightingAnalysis": {
            "coverage": "Excellent" | "Good" | "Fair" | "Poor" | "None",
            "type": "string (e.g. Modern LED, Sodium Vapor, Mixed)",
            "qualityDescription": "Brief description of the lighting quality."
+        },
+        "noisePollution": {
+           "level": "Low" | "Moderate" | "High" | "Severe",
+           "description": "Brief description of the soundscape (e.g. 'Heavy traffic noise', 'Quiet residential area')."
         },
         "publicTransport": {
            "rating": "Excellent" | "Good" | "Fair" | "Poor" | "None",
